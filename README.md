@@ -4,13 +4,30 @@ This is a simplified demo for research paper ["Leveraging Federated Learning for
 
 ![framework](./creditium-Overview.drawio.png)
 
+## Requirements
+
+- Docker with `docker` and `docker-compose` commands
+- Python >=3.8 with `python` and `pip` commands
+
+Install requirements:
+
+```bash
+pip install -r requirements.txt
+```
+
+You might have to install some dependencies (e.g. tensorflow) according to their official install instrucions.
+
 ## Usage
 
-run `python manager.py` with `--deploy` flag for the re-deployment
+run `python simulator.py` with `--deploy` flag for the re-deployment
 
 ```
-python manager.py
+python simulator.py
 ```
+
+Auto_suggest and completion have already assembled in the simulator.
+
+Demo Steps:
 
 ```bash
 >>> deploy_contracts 0x71b3D7405080197fC03cA82bCDd1764F1e14ABf2
