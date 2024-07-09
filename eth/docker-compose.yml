@@ -1,0 +1,99 @@
+version: "3"
+
+services:
+  # The bootnode is the rendez-vous point for all other nodes.
+  bootnode:
+    image: ethereum/client-go:alltools-v1.11.5
+    container_name: poa-bootnode
+    ports:
+      - 30333:30303
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./boot.key:/boot.key:ro
+      - /etc/localtime:/etc/localtime:ro
+    command: /scripts/bootnode.sh
+
+  # The node container is our entry point to issue RPC commands
+  # but it's not sealing.
+  node4user:
+    image: ethereum/client-go:alltools-v1.11.5
+    container_name: poa-node4user
+    links: [bootnode]
+    ports:
+      - 18544-18546:8544-8546
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./keystore:/keystore:ro
+      - ./genesis.json:/genesis.json:ro
+      - /etc/localtime:/etc/localtime:ro
+    command: /scripts/node.sh 0x71b3D7405080197fC03cA82bCDd1764F1e14ABf2
+
+  node4service:
+    image: ethereum/client-go:alltools-v1.11.5
+    container_name: poa-node4service
+    links: [bootnode]
+    ports:
+      - 28544-28546:8544-8546
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./keystore:/keystore:ro
+      - ./genesis.json:/genesis.json:ro
+      - /etc/localtime:/etc/localtime:ro
+    command: /scripts/node.sh 0x563A5fC36b990D68bBCaAA206C281BfEc31134AB
+
+  # Sealer nodes are workers that commit blocks constantly.
+  sealer-one:
+    image: ethereum/client-go:alltools-v1.11.5
+    container_name: poa-sealer1
+    links: [bootnode]
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./keystore:/keystore:ro
+      - ./genesis.json:/genesis.json:ro
+      - /etc/localtime:/etc/localtime:ro
+    command: /scripts/sealer.sh 0x6c319A49787d10a6e0c72a25DB06cc555370c4DD
+
+  sealer-two:
+    image: ethereum/client-go:alltools-v1.11.5
+    container_name: poa-sealer2
+    links: [bootnode]
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./keystore:/keystore:ro
+      - ./genesis.json:/genesis.json:ro
+      - /etc/localtime:/etc/localtime:ro
+    command: /scripts/sealer.sh 0x9E9581516679F57Aa7eb81D278841DF6aB93902B
+
+  sealer-three:
+    image: ethereum/client-go:alltools-v1.11.5
+    container_name: poa-sealer3
+    restart: on-failure
+    links: [bootnode]
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./keystore:/keystore:ro
+      - ./genesis.json:/genesis.json:ro
+      - /etc/localtime:/etc/localtime:ro
+    command: /scripts/sealer.sh 0x0Cbbb79B02449ea575F6185dd3C541E9ab8d8182
+
+  sealer-four:
+    image: ethereum/client-go:alltools-v1.11.5
+    restart: on-failure
+    links: [bootnode]
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./keystore:/keystore:ro
+      - ./genesis.json:/genesis.json:ro
+      - /etc/localtime:/etc/localtime:ro
+    command: /scripts/sealer.sh 0x356Cf535FC1f1C4dD1a4C4f4c261684bcd3e1bcb
+
+  sealer-five:
+    image: ethereum/client-go:alltools-v1.11.5
+    restart: on-failure
+    links: [bootnode]
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./keystore:/keystore:ro
+      - ./genesis.json:/genesis.json:ro
+      - /etc/localtime:/etc/localtime:ro
+    command: /scripts/sealer.sh 0xF7e5800E52318834E8689c37dCCCD2230427a905

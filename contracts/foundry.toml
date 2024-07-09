@@ -1,0 +1,9 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+chain_id = 1231312313142
+eth-rpc-url = "http://localhost:18545"
+gas_reports = ["*"]
+
+# See more config options https://github.com/foundry-rs/foundry/tree/master/config

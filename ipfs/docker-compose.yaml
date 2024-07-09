@@ -1,0 +1,110 @@
+version: '3'
+
+networks:
+  ipfsbr:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.5.0.0/16
+
+services:
+  ipfs0:
+    image: ipfs/kubo:v0.19.1
+    container_name: "ipfs0"
+    ports:
+      - 4001:4001 # ipfs swarm
+      - 5001:5001 # ipfs api
+      - 8080:8080 # ipfs gateway
+    volumes:
+      - ./data/ipfs0:/data/ipfs/
+      - ./export:/export
+    networks:
+      ipfsbr:
+        ipv4_address: 10.5.0.5
+
+  cluster0:
+    image: ipfs/ipfs-cluster:v0.11.0
+    container_name: "ipfs-cluster-0"
+    environment:
+      CLUSTER_PEERNAME: cluster0
+      CLUSTER_SECRET: ${CLUSTER_SECRET} # From shell variable if set
+      CLUSTER_IPFSHTTP_NODEMULTIADDRESS: /dns4/10.5.0.5/tcp/5001
+      CLUSTER_CRDT_TRUSTEDPEERS: '*' # Trust all peers in Cluster
+      CLUSTER_RESTAPI_HTTPLISTENMULTIADDRESS: /ip4/0.0.0.0/tcp/9094 # Expose API
+      CLUSTER_MONITORPINGINTERVAL: 2s # Speed up peer discovery
+      # IPFS_API: "/ip4/10.5.0.5/tcp/5001"
+      IPFS_BOOTSTRAP_RM_ALL: "true"
+    ports:
+      - 9094:9094
+      - 9096:9096 # Cluster IPFS Proxy endpoint
+    depends_on:
+      - ipfs0 
+    volumes:
+      - ./data/cluster0:/data/ipfs-cluster
+    networks:
+      ipfsbr:
+        ipv4_address: 10.5.0.6
+      
+  ipfs1:
+    image: ipfs/kubo:v0.19.1
+    container_name: "ipfs1"
+    ports:
+      - 14001:4001 # ipfs swarm
+      - 15001:5001 # ipfs api
+      - 18080:8080 # ipfs gateway
+    volumes:
+      - ./data/ipfs1:/data/ipfs/
+    networks:
+      ipfsbr:
+        ipv4_address: 10.5.0.7
+
+  cluster1:
+    image: ipfs/ipfs-cluster:v0.11.0
+    container_name: "ipfs-cluster-1"
+    environment:
+      CLUSTER_PEERNAME: cluster1
+      CLUSTER_SECRET: ${CLUSTER_SECRET}
+      CLUSTER_IPFSHTTP_NODEMULTIADDRESS: /dns4/10.5.0.7/tcp/5001
+      CLUSTER_CRDT_TRUSTEDPEERS: '*'
+      CLUSTER_MONITORPINGINTERVAL: 2s # Speed up peer discovery
+      # IPFS_API: "/ip4/10.5.0.7/tcp/5001"
+      IPFS_BOOTSTRAP_RM_ALL: "true"
+    depends_on:
+      - ipfs1
+    volumes:
+      - ./data/cluster1:/data/ipfs-cluster
+    networks:
+      ipfsbr:
+        ipv4_address: 10.5.0.8
+
+  ipfs2:
+    image: ipfs/kubo:v0.19.1
+    container_name: "ipfs2"
+    volumes:
+      - ./data/ipfs2:/data/ipfs/
+    ports:
+      - 24001:4001 # ipfs swarm
+      - 25001:5001 # ipfs api
+      - 28080:8080 # ipfs gateway
+    networks:
+      ipfsbr:
+        ipv4_address: 10.5.0.9
+
+  cluster2:
+    image: ipfs/ipfs-cluster:v0.11.0
+    container_name: "ipfs-cluster-2"
+    environment:
+      CLUSTER_PEERNAME: cluster2
+      CLUSTER_SECRET: ${CLUSTER_SECRET}
+      CLUSTER_IPFSHTTP_NODEMULTIADDRESS: /dns4/10.5.0.9/tcp/5001
+      CLUSTER_CRDT_TRUSTEDPEERS: '*'
+      CLUSTER_MONITORPINGINTERVAL: 2s # Speed up peer discovery
+      # IPFS_API: "/ip4/10.5.0.9/tcp/5001"
+      IPFS_BOOTSTRAP_RM_ALL: "true"
+    depends_on:
+      - ipfs2
+    volumes:
+      - ./data/cluster2:/data/ipfs-cluster
+    networks:
+      ipfsbr:
+        ipv4_address: 10.5.0.10
